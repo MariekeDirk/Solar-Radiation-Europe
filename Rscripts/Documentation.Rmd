@@ -1,0 +1,66 @@
+---
+title: "Documentation"
+author: "Marieke Dirksen"
+date: "May 30, 2017"
+output: html_document
+---
+## Introduction
+
+* description of project
+* goals
+
+```{r,echo=FALSE,message=FALSE}
+.libPaths("/nobackup/users/dirksen/R/x86_64-redhat-linux-gnu-library/3.3/")
+library(R.utils)
+library(raster)
+library(ncdf4)
+library(rts)
+#source("/nobackup/users/dirksen/SolarEurope/functions/generate_raster_based_on_netcdf.R")
+sourceDirectory("/nobackup/users/dirksen/SolarEurope/functions/")
+```
+
+## Untar and unzip the SARAH files from ftp server
+
+```{r create nc files}
+#untar all the files
+#system("ls *.tar | xargs -i tar xf {}")
+
+#gz.files<-list.files("/nobackup/users/dirksen/SARAH/",pattern=".nc.gz",full.names = TRUE)
+
+#for (i in 1:length(gz.files)){
+#  gz<-gz.files[i]
+#gunzip(gz)
+#}
+```
+
+## Create rasters from NetCDF files
+
+function: generate_raster_based_on_netcdf
+
+```{r nc to raster}
+nc.files<-list.files("/nobackup/users/dirksen/SARAH/",pattern=".nc",full.names = TRUE)
+save_dir<-"/nobackup/users/dirksen/SolarEurope/data/SARAH_raster/raster_datum.grd"
+start_time<-as.POSIXct("1983-01-01 00:00:00") 
+
+results<-lapply(nc.files[1:5],
+                generate_raster_based_on_netcdf,
+                save_dir = save_dir,
+                start_time = start_time,
+                varname = "SIS")
+
+```
+
+## Climatologies based on SARAH
+
+function: calculate_time_average_raster
+```{r}
+raster.path<-"/nobackup/users/dirksen/SolarEurope/data/SARAH_raster/"
+time.format<-"raster_%Y-%m-%d.grd"
+time.period<-"month"
+ext<-extent(-11.5,15.1,45.8,61.1) #Northwestern europe
+
+new_raster<-calculate_time_average_raster(raster.path=raster.path,
+                              ext=ext,
+                              time.format=time.format,
+                              time.period=time.period)
+```
