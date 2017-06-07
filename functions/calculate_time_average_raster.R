@@ -21,8 +21,8 @@ calculate_time_average_raster<-function(raster.path,ext=extent(-11.5,15.1,45.8,6
     warning(sprintf("raster files not found in %s \n",raster.path))
     return(NULL)
   }
-  
-  cropstack.time<-system.time(
+  message("going to stack raster files \n")
+  #cropstack.time<-system.time(
   if  (!inherits(raster.path, 'raster')){
     
     raster.files <- list.files(raster.path,pattern=".grd",full.names = TRUE)
@@ -34,17 +34,20 @@ calculate_time_average_raster<-function(raster.path,ext=extent(-11.5,15.1,45.8,6
     message("raster files stacked \n")
     st<-crop(st,ext)
     message("raster files cropped to new extent \n")
-  })
-  message(paste0("It took ", cropstack.time, "to stack and crop all the rasters"))
+  }
+  #)
+  #message(paste0("It took ", cropstack.time, "to stack and crop all the rasters"))
   
   if(time.period=="whole period"){
-    
+    message("calculating an average for the whole period \n")
     mean.wholeperiod<-stackApply(st.crop,1,fun=mean)
+    
+    message("done")
     return(mean.wholeperiod)  
   }  
   #st.ts<-rts(st,raster.times)
   if(time.period=="month"){
-    
+    message("calculating montly average \n")
     indices <- format(raster.times,format="%m")
     indices <- as.numeric(indices)
     
@@ -52,18 +55,20 @@ calculate_time_average_raster<-function(raster.path,ext=extent(-11.5,15.1,45.8,6
     mean.month <- stackApply(st,indices,fun=mean) # Calculating the mean for each month
     names(mean.month) <- c("Jan","Feb","March","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec")
     
+    message("done")
     return(mean.month)
   }
   
   if(time.period=="yearmonth"){
-    
+    message("calculating monthly averages for every year \n")
     indices <- format(raster.times,format="%Y%m")
     indices <- as.numeric(indices)
     
     #NOTE: calc could be faster for large datasets with complex formula's
     mean.yearmonth <- stackApply(st,indices,fun=mean) # Calculating the mean for each month
     names(mean.yearmonth) <- unique(format(raster.times,format="%Y%m"))
-    
+   
+    message("done")
     return(mean.month)
   }
   

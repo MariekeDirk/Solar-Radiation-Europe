@@ -15,8 +15,22 @@ library(R.utils)
 library(raster)
 library(ncdf4)
 library(rts)
-#source("/nobackup/users/dirksen/SolarEurope/functions/generate_raster_based_on_netcdf.R")
-sourceDirectory("/nobackup/users/dirksen/SolarEurope/functions/")
+library(rgdal)
+#source("../functions/generate_raster_based_on_netcdf.R")
+sourceDirectory("../functions")
+pro <- CRS("+init=epsg:28992")
+WGS84<-CRS("+init=epsg:4326")
+
+mymap.unpro=readOGR(dsn='../data/NaturalEarthData/ne_10m_admin_0_countries',layer="ne_10m_admin_0_countries") # Read in (unprojected) map data
+mymap.pro=spTransform(mymap.unpro, WGS84) # Reproject the map
+
+mymap.unpro_lakes=readOGR(dsn='../data/NaturalEarthData/ne_10m_lakes',layer="ne_10m_lakes") # Read in (unprojected) map data
+mymap.pro_lakes=spTransform(mymap.unpro_lakes, WGS84) # Reproject the map
+
+fun <- function() {
+  plot(mymap.pro,add=TRUE)
+  plot(mymap.pro_lakes,add=TRUE)
+}
 ```
 
 ## Untar and unzip the SARAH files from ftp server
@@ -39,7 +53,7 @@ function: generate_raster_based_on_netcdf
 
 ```{r nc to raster}
 nc.files<-list.files("/nobackup/users/dirksen/SARAH/",pattern=".nc",full.names = TRUE)
-save_dir<-"/nobackup/users/dirksen/SolarEurope/data/SARAH_raster/raster_datum.grd"
+save_dir<-"../data/SARAH_raster/raster_datum.grd"
 start_time<-as.POSIXct("1983-01-01 00:00:00") 
 
 results<-lapply(nc.files[1:5],
@@ -54,7 +68,7 @@ results<-lapply(nc.files[1:5],
 
 function: calculate_time_average_raster
 ```{r}
-raster.path<-"/nobackup/users/dirksen/SolarEurope/data/SARAH_raster/"
+raster.path<-"../data/SARAH_raster/"
 time.format<-"raster_%Y-%m-%d.grd"
 time.period<-"month"
 ext<-extent(-11.5,15.1,45.8,61.1) #Northwestern europe
@@ -63,4 +77,26 @@ new_raster<-calculate_time_average_raster(raster.path=raster.path,
                               ext=ext,
                               time.format=time.format,
                               time.period=time.period)
+saveRDS(new_raster,"../results/time_averaged_raster.rds")
+```
+
+## Visualizatie
+
+```{r figures}
+month.mean<-readRDS("../results/time_averaged_raster.rds")
+
+kleur.breaks<-seq(18,245,by=0.5)
+kleur.cols<-colorRampPalette(c("green","yellow","orange"))(length(kleur.breaks-1))
+plot.new()
+par(mar=c(0,0,0,0), oma=c(0,0,0,0))
+#png(filename="/usr/people/dirksen/reports/EGU2017_proceedings/fig/monthly_mean_distsea.png", width = 3200, height = 2500, units = "px",res=300)
+
+png(filename="../fig/month_mean_SARAH.png", width = 3200, height = 2200, units = "px",res=300)
+
+plot(month.mean,addfun=fun,col=kleur.cols,
+     #ext=extent(month.mean),
+     legend.args=list(text='W/m2', side=3, cex=0.5
+     ))
+
+dev.off()
 ```
