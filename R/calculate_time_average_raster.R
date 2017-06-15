@@ -3,6 +3,8 @@
 #' \code{calculate_time_average_raster} uses raster and rts to calculate time averages for an extent. Stacking the raster files 
 #' doesn't load everything into memory. Note that for large files stackApply can consume a long time. 
 #' 
+#' @title Calculate time averages from raster
+#' 
 #' @param raster.path is the full path to the raster file with a pattern ".grd".
 #' @param ext is the extent in lon lat
 #' @param time.format extracts the date out of the file name

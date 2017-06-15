@@ -1,7 +1,7 @@
 #' Create raster files from NetCDF
 #' 
 #' \code{generate_raster_based_on_netcdf} 
-#' 
+#' @title Generate raster from NetCDF
 #' 
 #' @param ncdf_path location were the NetCDF files are stored.
 #' @param save_dir path were you want to store the raster files.
