@@ -80,6 +80,23 @@ new_raster<-calculate_time_average_raster(raster.path=raster.path,
 saveRDS(new_raster,"../results/time_averaged_raster.rds")
 ```
 
+
+```{r pca}
+grdfiles<- list.files("/nobackup/users/dirksen/data/SARAH_raster/",pattern=".grd")
+sarah.datums<-as.Date(grdfiles,format = time.format)
+sarah.months<-months(sarah.datums)
+
+
+sarah.months.unique<-unique(sarah.months)
+I<-which(sarah.months==sarah.months.unique[1])
+
+Jan.files<-list.files("/nobackup/users/dirksen/data/SARAH_raster/",pattern=".grd",full.names = TRUE)[I]
+Jan.st<-stack(Jan.files)
+
+Jan.pca<-rasterPCA
+
+```
+
 ## Visualization
 
 ```{r figures}
